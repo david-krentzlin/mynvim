@@ -527,19 +527,49 @@ end)
 
 -- Git integration ========================================================================
 
--- LazyGit integration - Launch lazygit in a floating window
+-- Neogit - Magit-like Git interface for Neovim
 later(function()
-  add("kdheepak/lazygit.nvim")
+  add({
+    source = "NeogitOrg/neogit",
+    depends = { "nvim-lua/plenary.nvim" },
+  })
 
-  -- Configure lazygit to use custom config file
-  vim.g.lazygit_use_custom_config_file_path = 1
-  vim.g.lazygit_config_file_path = vim.fn.expand('~/.config/lazygit/config.yml')
+  require("neogit").setup({
+    -- Use replace mode: takes over current window for focused Git workflow
+    kind = "replace",
 
-  -- Configure lazygit to use floating window
-  vim.g.lazygit_floating_window_scaling_factor = 0.9
-  vim.g.lazygit_floating_window_use_plenary = 0
+    -- Quality-of-life improvements
+    disable_hint = true,                    -- Remove hint text in status buffer
+    disable_commit_confirmation = "auto",   -- Skip confirmation for simple commits
+    disable_insert_on_commit = false,       -- Start in insert mode for commit messages
 
-  vim.keymap.set('n', '<leader>gg', '<cmd>LazyGit<cr>', { desc = 'LazyGit' })
+    -- Commit editor settings
+    commit_editor = {
+      kind = "replace",         -- Consistent window behavior
+      show_staged_diff = true,  -- Show diff below commit message
+    },
+
+    -- Popup behavior
+    commit_popup = {
+      kind = "replace",
+    },
+
+    -- Status buffer sections configuration
+    sections = {
+      untracked = { folded = false },
+      unstaged = { folded = false },
+      staged = { folded = false },
+      stashes = { folded = true },
+      unpulled_upstream = { folded = true },
+      unmerged_upstream = { folded = false },
+      unpulled_pushRemote = { folded = true },
+      unmerged_pushRemote = { folded = false },
+      recent = { folded = true },
+      rebase = { folded = true },
+    },
+  })
+
+  vim.keymap.set('n', '<leader>gg', '<cmd>Neogit<cr>', { desc = 'Neogit (Git UI)' })
 end)
 
 -- Markdown rendering ===================================================================
