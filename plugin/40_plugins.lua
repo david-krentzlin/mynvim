@@ -392,6 +392,114 @@ later(function()
   end, { desc = "Location list (Quicker)" })
 end)
 
+-- Testing ============================================================================
+
+-- Neotest - Test runner with inline results
+later(function()
+  add("nvim-neotest/neotest")
+
+  -- Add test adapters for different languages
+  add("nvim-neotest/neotest-go") -- Go testing
+  add("olimorris/neotest-rspec") -- Ruby RSpec
+
+  require("neotest").setup({
+    adapters = {
+      -- Adapters will be configured in ftplugin files
+      -- but we need to require them here for neotest to find them
+      require('neotest-go'),
+      require('neotest-rspec'),
+    },
+    floating = {
+      border = "rounded",
+      max_height = 0.8,
+      max_width = 0.8,
+    },
+    icons = {
+      passed = "",
+      running = "",
+      failed = "",
+      skipped = "",
+      unknown = "",
+    },
+    summary = {
+      open = "botright vsplit | vertical resize 50"
+    },
+  })
+
+  -- Keymaps in the "+Check" group
+  vim.keymap.set("n", "<leader>cr", function() require("neotest").run.run() end, { desc = "Run nearest test" })
+  vim.keymap.set("n", "<leader>cf", function() require("neotest").run.run(vim.fn.expand("%")) end,
+    { desc = "Run file tests" })
+  vim.keymap.set("n", "<leader>cs", function() require("neotest").run.stop() end, { desc = "Stop test" })
+  vim.keymap.set("n", "<leader>ca", function() require("neotest").run.attach() end, { desc = "Attach to test" })
+  vim.keymap.set("n", "<leader>co", function() require("neotest").output.open({ enter = true }) end,
+    { desc = "Show test output" })
+  vim.keymap.set("n", "<leader>cO", function() require("neotest").output_panel.toggle() end,
+    { desc = "Toggle output panel" })
+  vim.keymap.set("n", "<leader>ct", function() require("neotest").summary.toggle() end, { desc = "Toggle test summary" })
+  vim.keymap.set("n", "[t", function() require("neotest").jump.prev({ status = "failed" }) end,
+    { desc = "Previous failed test" })
+  vim.keymap.set("n", "]t", function() require("neotest").jump.next({ status = "failed" }) end,
+    { desc = "Next failed test" })
+end)
+
+-- Terminal management ================================================================
+
+-- ToggleTerm - Better terminal management with floating windows
+later(function()
+  add("akinsho/toggleterm.nvim")
+
+  require("toggleterm").setup({
+    size = function(term)
+      if term.direction == "horizontal" then
+        return 15
+      elseif term.direction == "vertical" then
+        return vim.o.columns * 0.4
+      end
+    end,
+    open_mapping = [[<C-/>]],
+    hide_numbers = true,
+    shade_terminals = true,
+    start_in_insert = true,
+    insert_mappings = true,
+    terminal_mappings = true,
+    persist_size = true,
+    persist_mode = true,
+    direction = 'float',
+    close_on_exit = true,
+    shell = vim.o.shell,
+    float_opts = {
+      border = 'curved',
+      winblend = 0,
+    },
+  })
+
+  -- Create a custom terminal for taskwarrior-tui
+  local Terminal = require('toggleterm.terminal').Terminal
+  local taskwarrior = Terminal:new({
+    cmd = "taskwarrior-tui",
+    direction = "float",
+    float_opts = {
+      border = "curved",
+      width = math.floor(vim.o.columns * 0.9),
+      height = math.floor(vim.o.lines * 0.9),
+    },
+    on_open = function(term)
+      vim.cmd("startinsert!")
+      -- Disable line numbers in the terminal
+      vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
+    end,
+  })
+
+  -- Function to toggle taskwarrior
+  function _G.toggle_taskwarrior()
+    taskwarrior:toggle()
+  end
+
+  -- Keymaps
+  vim.keymap.set("n", "<leader>dt", "<cmd>lua toggle_taskwarrior()<CR>", { desc = "Tasks (TaskWarrior)" })
+end)
+
 -- Git integration ========================================================================
 
 -- LazyGit integration - Launch lazygit in a floating window
