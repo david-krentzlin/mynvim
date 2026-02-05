@@ -39,6 +39,7 @@ vim.o.linebreak      = true                -- Wrap lines at 'breakat' (if 'wrap'
 vim.o.list           = true                -- Show helpful text indicators
 vim.o.number         = true                -- Show line numbers
 vim.o.pumheight      = 15                  -- Make popup menu smaller
+--vim.o.pummaxwidth    = 80
 vim.o.ruler          = false               -- Don't show cursor coordinates
 vim.o.shortmess      = 'CFOSWaco'          -- Disable some built-in completion messages
 vim.o.showmode       = false               -- Don't show mode in command line
@@ -84,7 +85,7 @@ vim.o.formatlistpat  = [[^\s*[0-9\-\+\*]\+[\.\)]*\s\+]]
 
 -- Built-in completion
 vim.o.complete       = '.,w,b,kspell'                  -- Use less sources
-vim.o.completeopt    = 'menuone,noselect,fuzzy,nosort' -- Use custom behavior
+vim.o.completeopt    = 'menuone,noinsert,fuzzy,nosort' -- Use custom behavior
 
 -- Autocommands ===============================================================
 
