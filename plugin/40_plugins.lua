@@ -289,6 +289,28 @@ now(function()
 
       hl.NormalFloat        = { fg = colors.fg_main, bg = colors.bg_main }
       hl.FloatBorder        = { fg = colors.border, bg = colors.bg_main }
+
+      -- MiniPick window
+      hl.MiniPickMatchCurrent = {
+        fg = colors.fg_main,
+        bg = colors.bg_active,
+        bold = true
+      }
+
+      hl.MiniPickMatchRanges = {
+        fg = colors.cyan,
+        bold = true
+      }
+
+      hl.MiniPickMatchMarked = {
+        fg = colors.yellow,
+        bg = colors.bg_dim
+      }
+
+      hl.MiniPickPrompt = {
+        fg = colors.magenta,
+        bold = true
+      }
     end,
   })
 
