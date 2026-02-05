@@ -288,6 +288,127 @@ now(function()
 end)
 
 
+-- UI enhancements ========================================================================
+
+-- Aerial - Code outline and structure navigator
+later(function()
+  add("stevearc/aerial.nvim")
+
+  local mini_icons = require("mini.icons")
+
+  -- Build icons table from mini.icons for the kinds we filter
+  local aerial_icons = {}
+  local kinds = {
+    'Class', 'Constructor', 'Enum', 'Function', 'Interface', 'Module', 'Method', 'Struct'
+  }
+
+  for _, kind in ipairs(kinds) do
+    local icon = mini_icons.get("lsp", kind:lower())
+    aerial_icons[kind] = icon .. " "
+  end
+
+  -- Override function icon (the default one doesn't render well)
+  aerial_icons['Function'] = '󰊕 '
+
+  require("aerial").setup({
+    filter_kind = kinds,
+    layout = {
+      min_width = 28,
+      default_direction = 'left',
+      placement = 'edge',
+    },
+    highlight_mode = 'last',
+    highlight_on_jump = 1000,
+    highlight_on_hover = true,
+    highlight_closest = true,
+    open_automatic = false,
+    autojump = true,
+    link_folds_to_tree = false,
+    link_tree_to_folds = false,
+    attach_mode = 'global',
+    backends = { 'treesitter', 'lsp', 'markdown', 'man', 'asciidoc' },
+    show_guides = true,
+    guides = {
+      mid_item = '├ ',
+      last_item = '└ ',
+      nested_top = '│ ',
+      whitespace = '  ',
+    },
+    icons = aerial_icons,
+    on_attach = function(bufnr)
+      vim.keymap.set("n", "{", "<cmd>AerialPrev<CR>", { buffer = bufnr })
+      vim.keymap.set("n", "}", "<cmd>AerialNext<CR>", { buffer = bufnr })
+    end,
+  })
+
+  vim.keymap.set("n", "<leader>fo", "<cmd>AerialToggle<CR>", { desc = "Outline (Aerial)" })
+end)
+
+-- Quicker.nvim - Enhanced quickfix window
+later(function()
+  add("stevearc/quicker.nvim")
+
+  require("quicker").setup({
+    -- Keymaps for the quickfix buffer
+    keys = {
+      {
+        ">",
+        function()
+          require("quicker").expand({ before = 2, after = 2, add_to_existing = true })
+        end,
+        desc = "Expand quickfix context",
+      },
+      {
+        "<",
+        function()
+          require("quicker").collapse()
+        end,
+        desc = "Collapse quickfix context",
+      },
+    },
+
+    -- Enable editing the quickfix like a normal buffer
+    edit = {
+      enabled = true,
+      autosave = "unmodified",
+    },
+
+    -- Use treesitter and LSP for syntax highlighting
+    highlight = {
+      treesitter = true,
+      lsp = true,
+      load_buffers = false,
+    },
+  })
+
+  -- You already have <Leader>eq for quickfix toggle in keymaps,
+  -- but quicker provides enhanced toggle functionality
+  vim.keymap.set("n", "<leader>eq", function()
+    require("quicker").toggle()
+  end, { desc = "Quickfix (Quicker)" })
+
+  vim.keymap.set("n", "<leader>eQ", function()
+    require("quicker").toggle({ loclist = true })
+  end, { desc = "Location list (Quicker)" })
+end)
+
+-- Git integration ========================================================================
+
+-- LazyGit integration - Launch lazygit in a floating window
+later(function()
+  add("kdheepak/lazygit.nvim")
+
+  -- Configure lazygit to use custom config file
+  vim.g.lazygit_use_custom_config_file_path = 1
+  vim.g.lazygit_config_file_path = vim.fn.expand('~/.config/lazygit/config.yml')
+
+  -- Configure lazygit to use floating window
+  vim.g.lazygit_floating_window_scaling_factor = 0.9
+  vim.g.lazygit_floating_window_use_plenary = 0
+
+  vim.keymap.set('n', '<leader>gg', '<cmd>LazyGit<cr>', { desc = 'LazyGit' })
+end)
+
 -- Languages ============================================================================
 
 later(function()
