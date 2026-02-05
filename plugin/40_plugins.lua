@@ -234,6 +234,15 @@ now(function()
       colors.bg_linenr = colors.bg_main
     end,
     on_highlights = function(hl, colors)
+      hl.CursorLine         = {
+        bg = colors.bg_main
+      }
+
+      hl.CursorLineNr       = {
+        fg = colors.magenta,
+        bg = colors.bg_main,
+        bold = true
+      }
       -- MiniClue window
       hl.MiniClueBorder     = {
         fg = colors.border,
