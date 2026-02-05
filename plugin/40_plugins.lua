@@ -62,6 +62,34 @@ now_if_args(function()
     "lua",
     "vimdoc",
     "markdown",
+    "scala",
+    "go",
+    "gosum",
+    "gomod",
+    "gotmpl",
+    "gowork",
+    "graphql",
+    "hocon",
+    "html",
+    "http",
+    "ruby",
+    "java",
+    "cmake",
+    "rust",
+    "json",
+    "yaml",
+    "sql",
+    "terraform",
+    "toml",
+    "xml",
+    "zsh",
+    "css",
+    "csv",
+    "bash",
+    "diff",
+    "ebnf",
+    "gitignore",
+    "git_config",
     -- Add here more languages with which you want to use tree-sitter
     -- To see available languages:
     -- - Execute `:=require('nvim-treesitter').get_available()`
@@ -112,7 +140,14 @@ now_if_args(function()
   -- Use `:h vim.lsp.config()` or 'after/lsp/' directory to configure servers.
   -- Uncomment and tweak the following `vim.lsp.enable()` call to enable servers.
   vim.lsp.enable({
-    'lua_ls'
+    'lua_ls',
+    'herb_ls', -- erb
+    'rubocop',
+    'ruby_lsp',
+    'golangci_lint_ls',
+    'gopls',
+    'harper_ls',
+    'marksman'
   })
 end)
 
@@ -250,4 +285,45 @@ now(function()
 
 
   vim.cmd("color modus_vivendi")
+end)
+
+
+-- Languages ============================================================================
+
+later(function()
+  add("scalameta/nvim-metals")
+
+  -- Configure nvim-metals for Scala files
+  local metals_augroup = vim.api.nvim_create_augroup('nvim-metals', { clear = true })
+  vim.api.nvim_create_autocmd('FileType', {
+    pattern = { 'scala', 'sbt', 'java' },
+    group = metals_augroup,
+    callback = function()
+      local metals = require('metals')
+      local metals_config = metals.bare_config()
+
+      metals_config.settings = {
+        showInferredType = false,
+        superMethodLensesEnabled = true,
+        showImplicitArguments = true,
+        excludedPackages = { 'akka.actor.typed.javadsl', 'com.github.swagger.akka.javadsl' },
+        serverVersion = 'latest.snapshot',
+      }
+      metals_config.init_options.statusBarProvider = 'on'
+
+      metals_config.on_attach = function(client, bufnr)
+        require('metals').setup_dap()
+
+        if client.server_capabilities.codeLensProvider then
+          vim.api.nvim_create_autocmd({ 'BufEnter', 'CursorHold', 'InsertLeave' }, {
+            buffer = bufnr,
+            callback = vim.lsp.codelens.refresh,
+          })
+        end
+      end
+
+      -- Initialize metals for this buffer
+      metals.initialize_or_attach(metals_config)
+    end,
+  })
 end)
