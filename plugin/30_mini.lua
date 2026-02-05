@@ -485,6 +485,30 @@ later(function()
     MiniFiles.set_bookmark("w", vim.fn.getcwd, { desc = "Working directory" })
   end
   _G.Config.new_autocmd("User", "MiniFilesExplorerOpen", add_marks, "Add bookmarks")
+
+  -- Add custom mappings to modify target window via split
+  -- Based on: https://github.com/echasnovski/mini.nvim/blob/main/readmes/mini-files.md#create-mappings-to-modify-target-window-via-split
+  local map_split = function(buf_id, lhs, direction)
+    local rhs = function()
+      -- Make new window and set it as target
+      local cur_target = MiniFiles.get_explorer_state().target_window
+      local new_target = vim.api.nvim_win_call(cur_target, function()
+        vim.cmd(direction .. ' split')
+        return vim.api.nvim_get_current_win()
+      end)
+
+      MiniFiles.set_target_window(new_target)
+    end
+
+    local desc = 'Split ' .. direction
+    vim.keymap.set('n', lhs, rhs, { buffer = buf_id, desc = desc })
+  end
+
+  _G.Config.new_autocmd('User', 'MiniFilesBufferCreate', function(args)
+    local buf_id = args.data.buf_id
+    map_split(buf_id, '<C-s>', 'belowright horizontal')
+    map_split(buf_id, '<C-v>', 'belowright vertical')
+  end, 'Add split mappings')
 end)
 
 -- Git integration for more straightforward Git actions based on Neovim's state.
