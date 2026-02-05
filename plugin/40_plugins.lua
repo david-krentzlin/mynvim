@@ -539,14 +539,14 @@ later(function()
     kind = "replace",
 
     -- Quality-of-life improvements
-    disable_hint = true,                    -- Remove hint text in status buffer
-    disable_commit_confirmation = "auto",   -- Skip confirmation for simple commits
-    disable_insert_on_commit = false,       -- Start in insert mode for commit messages
+    disable_hint = true,                  -- Remove hint text in status buffer
+    disable_commit_confirmation = "auto", -- Skip confirmation for simple commits
+    disable_insert_on_commit = false,     -- Start in insert mode for commit messages
 
     -- Commit editor settings
     commit_editor = {
-      kind = "replace",         -- Consistent window behavior
-      show_staged_diff = true,  -- Show diff below commit message
+      kind = "replace",        -- Consistent window behavior
+      show_staged_diff = true, -- Show diff below commit message
     },
 
     -- Popup behavior
@@ -568,8 +568,6 @@ later(function()
       rebase = { folded = true },
     },
   })
-
-  vim.keymap.set('n', '<leader>gg', '<cmd>Neogit<cr>', { desc = 'Neogit (Git UI)' })
 end)
 
 -- Markdown rendering ===================================================================
