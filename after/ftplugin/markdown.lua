@@ -21,6 +21,9 @@ vim.cmd('setlocal spell wrap')
 -- Fold with tree-sitter
 vim.cmd('setlocal foldmethod=expr foldexpr=v:lua.vim.treesitter.foldexpr()')
 
+-- Conceallevel for render-markdown.nvim to work properly
+vim.opt_local.conceallevel = 2
+
 -- Disable built-in `gO` mapping in favor of 'mini.basics'
 vim.keymap.del('n', 'gO', { buffer = 0 })
 

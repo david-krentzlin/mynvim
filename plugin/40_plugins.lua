@@ -392,55 +392,62 @@ later(function()
   end, { desc = "Location list (Quicker)" })
 end)
 
--- Testing ============================================================================
+-- Task runner =====================================================================
 
--- Neotest - Test runner with inline results
+-- Overseer - Task runner for Makefile, mise, and other task systems
 later(function()
-  add("nvim-neotest/neotest")
+  add("stevearc/overseer.nvim")
 
-  -- Add test adapters for different languages
-  add("nvim-neotest/neotest-go") -- Go testing
-  add("olimorris/neotest-rspec") -- Ruby RSpec
-
-  require("neotest").setup({
-    adapters = {
-      -- Adapters will be configured in ftplugin files
-      -- but we need to require them here for neotest to find them
-      require('neotest-go'),
-      require('neotest-rspec'),
+  require("overseer").setup({
+    templates = { "builtin", "make", "mise" },
+    task_list = {
+      direction = "bottom",
+      min_height = 15,
+      max_height = 25,
+      default_detail = 1,
+      bindings = {
+        ["?"] = "ShowHelp",
+        ["g?"] = "ShowHelp",
+        ["<CR>"] = "RunAction",
+        ["<C-e>"] = "Edit",
+        ["o"] = "Open",
+        ["<C-v>"] = "OpenVsplit",
+        ["<C-s>"] = "OpenSplit",
+        ["<C-f>"] = "OpenFloat",
+        ["<C-q>"] = "OpenQuickFix",
+        ["p"] = "TogglePreview",
+        ["<C-l>"] = "IncreaseDetail",
+        ["<C-h>"] = "DecreaseDetail",
+        ["L"] = "IncreaseAllDetail",
+        ["H"] = "DecreaseAllDetail",
+        ["["] = "DecreaseWidth",
+        ["]"] = "IncreaseWidth",
+        ["{"] = "PrevTask",
+        ["}"] = "NextTask",
+        ["<C-k>"] = "ScrollOutputUp",
+        ["<C-j>"] = "ScrollOutputDown",
+        ["q"] = "Close",
+      },
     },
-    floating = {
-      border = "rounded",
-      max_height = 0.8,
-      max_width = 0.8,
+    -- Automatically detect tasks from Makefile and mise
+    auto_detect_success_color = true,
+    -- Integration with toggleterm
+    strategy = {
+      "toggleterm",
+      direction = "horizontal",
+      autos_croll = true,
+      quit_on_exit = "success"
     },
-    icons = {
-      passed = "",
-      running = "",
-      failed = "",
-      skipped = "",
-      unknown = "",
-    },
-    summary = {
-      open = "botright vsplit | vertical resize 50"
+    component_aliases = {
+      default = {
+        { "display_duration", detail_level = 2 },
+        "on_output_summarize",
+        "on_exit_set_status",
+        "on_complete_notify",
+        "on_complete_dispose",
+      },
     },
   })
-
-  -- Keymaps in the "+Check" group
-  vim.keymap.set("n", "<leader>cr", function() require("neotest").run.run() end, { desc = "Run nearest test" })
-  vim.keymap.set("n", "<leader>cf", function() require("neotest").run.run(vim.fn.expand("%")) end,
-    { desc = "Run file tests" })
-  vim.keymap.set("n", "<leader>cs", function() require("neotest").run.stop() end, { desc = "Stop test" })
-  vim.keymap.set("n", "<leader>ca", function() require("neotest").run.attach() end, { desc = "Attach to test" })
-  vim.keymap.set("n", "<leader>co", function() require("neotest").output.open({ enter = true }) end,
-    { desc = "Show test output" })
-  vim.keymap.set("n", "<leader>cO", function() require("neotest").output_panel.toggle() end,
-    { desc = "Toggle output panel" })
-  vim.keymap.set("n", "<leader>ct", function() require("neotest").summary.toggle() end, { desc = "Toggle test summary" })
-  vim.keymap.set("n", "[t", function() require("neotest").jump.prev({ status = "failed" }) end,
-    { desc = "Previous failed test" })
-  vim.keymap.set("n", "]t", function() require("neotest").jump.next({ status = "failed" }) end,
-    { desc = "Next failed test" })
 end)
 
 -- Terminal management ================================================================
@@ -496,8 +503,17 @@ later(function()
     taskwarrior:toggle()
   end
 
-  -- Keymaps
-  vim.keymap.set("n", "<leader>dt", "<cmd>lua toggle_taskwarrior()<CR>", { desc = "Tasks (TaskWarrior)" })
+  -- Quick add task function
+  function _G.quick_add_task()
+    vim.ui.input({ prompt = "Task: " }, function(input)
+      if input and input ~= "" then
+        -- Pass input directly to shell without escaping
+        -- User is responsible for proper quoting if needed
+        vim.fn.system("task add " .. input)
+        vim.notify("Task added: " .. input, vim.log.levels.INFO)
+      end
+    end)
+  end
 end)
 
 -- Git integration ========================================================================
@@ -515,6 +531,109 @@ later(function()
   vim.g.lazygit_floating_window_use_plenary = 0
 
   vim.keymap.set('n', '<leader>gg', '<cmd>LazyGit<cr>', { desc = 'LazyGit' })
+end)
+
+-- Markdown rendering ===================================================================
+
+-- render-markdown.nvim - Inline markdown rendering with conceals
+later(function()
+  add("MeanderingProgrammer/render-markdown.nvim")
+
+  require("render-markdown").setup({
+    completion = { lsp = { enabled = true } },
+    render_modes = true,
+    indent = {
+      enabled = false,
+    },
+    sign = {
+      enabled = false,
+    },
+    dash = {
+      enabled = true,
+    },
+    code = {
+      enabled = true,
+    },
+    heading = {
+      enabled = true,
+      icons = { '■ ', '■■ ', '■■■ ', '■■■■ ', '■■■■■ ', '■■■■■■ ' },
+      backgrounds = {},
+      foregrounds = {
+        'RenderMarkdownH1',
+        'RenderMarkdownH2',
+        'RenderMarkdownH3',
+        'RenderMarkdownH4',
+        'RenderMarkdownH5',
+        'RenderMarkdownH6',
+      },
+      above = '▄',
+      below = '▀',
+    },
+    link = {
+      enabled = true,
+    },
+    bullet = {
+      enabled = true,
+      icons = { '•', '•', '•', '•' },
+    },
+    checkbox = {
+      enabled = true,
+
+      -- kept compatible with obsidian minimal theme checkboxes
+      custom = {
+        cancelled = { raw = '[-]', rendered = '󰜺 ', highlight = 'RenderMarkdownUnchecked' },
+        incomplete = { raw = '[/]', rendered = '󰜺 ', highlight = 'RenderMarkdownUnchecked' },
+        information = { raw = '[i]', rendered = '󰋼 ', highlight = 'RenderMarkdownBullet' },
+        idea = { raw = '[I]', rendered = '󰛨 ' },
+        event = { raw = '[e]', rendered = ' ' },
+        forwarded = { raw = '[>]', rendered = '󰜴 ' },
+        scheduled = { raw = '[<]', rendered = '󰜱 ' },
+        important = { raw = '[!]', rendered = ' ' },
+        quote = { raw = '["]', rendered = '󰉾 ' },
+        star = { raw = '[*]', rendered = ' ' },
+        question = { raw = '[?]', rendered = ' ' },
+        pros = { raw = '[p]', rendered = '󰔓 ', highlight = 'RenderMarkdownBullet' },
+        cons = { raw = '[c]', rendered = '󰔑 ', highlight = 'RenderMarkdownBullet' },
+      },
+    },
+    latex = {
+      enabled = true,
+      render_modes = false,
+      converter = 'latex2text',
+      highlight = 'RenderMarkdownMath',
+      top_pad = 0,
+      bottom_pad = 0,
+    },
+  })
+end)
+
+-- Notes system ========================================================================
+
+-- Helper functions for managing notes in ~/Documents/Notes
+later(function()
+  local notes_dir = vim.fn.expand("~/Documents/Notes")
+
+  -- Ensure notes directory exists
+  vim.fn.mkdir(notes_dir, "p")
+
+  -- Open or create daily note (format: YYYY-MM-DD.md)
+  _G.open_daily_note = function()
+    local date = os.date("%Y-%m-%d")
+    local note_path = notes_dir .. "/" .. date .. ".md"
+    vim.cmd("edit " .. note_path)
+  end
+
+  -- Find notes using mini.pick
+  _G.find_notes = function()
+    local pick = require("mini.pick")
+    pick.builtin.files({}, { source = { cwd = notes_dir } })
+  end
+
+  -- Grep in notes using mini.pick
+  _G.grep_notes = function()
+    local pick = require("mini.pick")
+    pick.builtin.grep_live({}, { source = { cwd = notes_dir } })
+  end
 end)
 
 -- Languages ============================================================================

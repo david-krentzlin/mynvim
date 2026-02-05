@@ -51,7 +51,6 @@ nmap(']p', '<Cmd>exe "put "  . v:register<CR>', 'Paste Below')
 -- Add an entry if you create a new group.
 _G.Config.leader_group_clues = {
   { mode = 'n', keys = '<Leader>b', desc = '+Buffer' },
-  { mode = 'n', keys = '<Leader>c', desc = '+Check' },
   { mode = 'n', keys = '<Leader>d', desc = '+Do' },
   { mode = 'n', keys = '<Leader>e', desc = '+Explore/Edit' },
   { mode = 'n', keys = '<Leader>f', desc = '+Find' },
@@ -60,6 +59,7 @@ _G.Config.leader_group_clues = {
   { mode = 'n', keys = '<Leader>l', desc = '+Language' },
   { mode = 'n', keys = '<Leader>m', desc = '+Map' },
   { mode = 'n', keys = '<Leader>o', desc = '+Other' },
+  { mode = 'n', keys = '<Leader>r', desc = '+Run' },
   { mode = 'n', keys = '<Leader>s', desc = '+Session' },
   { mode = 'n', keys = '<Leader>t', desc = '+Terminal' },
   { mode = 'n', keys = '<Leader>v', desc = '+Visits' },
@@ -100,6 +100,18 @@ nmap_leader('bs', new_scratch_buffer,                            'Scratch')
 nmap_leader('bw', '<Cmd>lua MiniBufremove.wipeout()<CR>',        'Wipeout')
 nmap_leader('bW', '<Cmd>lua MiniBufremove.wipeout(0, true)<CR>', 'Wipeout!')
 nmap_leader('bc', '<Cmd>nohlsearch<CR>',                         'Nohlsearch')
+
+-- d is for 'Do' (tasks and actions). Common usage:
+-- - `<Leader>da` - quickly add a new task
+-- - `<Leader>dp` - pick from ready tasks (with actions)
+-- - `<Leader>dP` - pick from all pending tasks
+-- - `<Leader>ds` - pick from active (started) tasks to stop
+-- - `<Leader>dt` - open taskwarrior TUI
+nmap_leader('da', '<Cmd>lua quick_add_task()<CR>',      'Add task')
+nmap_leader('dp', '<Cmd>lua pick_tasks()<CR>',          'Pick ready tasks')
+nmap_leader('dP', '<Cmd>lua pick_all_tasks()<CR>',      'Pick all tasks')
+nmap_leader('ds', '<Cmd>lua pick_active_tasks()<CR>',   'Stop active task')
+nmap_leader('dt', '<Cmd>lua toggle_taskwarrior()<CR>',  'TaskWarrior TUI')
 
 -- e is for 'Explore' and 'Edit'. Common usage:
 -- - `<Leader>ed` - open explorer at current working directory
@@ -153,6 +165,8 @@ nmap_leader('fg', '<Cmd>Pick grep_live<CR>',                    'Grep live')
 nmap_leader('fG', '<Cmd>Pick grep pattern="<cword>"<CR>',       'Grep current word')
 nmap_leader('fh', '<Cmd>Pick help<CR>',                         'Help tags')
 nmap_leader('fH', '<Cmd>Pick hl_groups<CR>',                    'Highlight groups')
+nmap_leader('fj', '<Cmd>lua find_notes()<CR>',                  'Notes (find)')
+nmap_leader('fJ', '<Cmd>lua grep_notes()<CR>',                  'Notes (grep)')
 nmap_leader('fl', '<Cmd>Pick buf_lines scope="all"<CR>',        'Lines (all)')
 nmap_leader('fL', '<Cmd>Pick buf_lines scope="current"<CR>',    'Lines (buf)')
 nmap_leader('fm', '<Cmd>Pick git_hunks<CR>',                    'Modified hunks (all)')
@@ -184,6 +198,11 @@ nmap_leader('go', '<Cmd>lua MiniDiff.toggle_overlay()<CR>', 'Toggle overlay')
 nmap_leader('gs', '<Cmd>lua MiniGit.show_at_cursor()<CR>',  'Show at cursor')
 
 xmap_leader('gs', '<Cmd>lua MiniGit.show_at_cursor()<CR>', 'Show at selection')
+
+-- j is for 'Jot' (notes). Common usage:
+-- - `<Leader>jj` - open today's daily note
+-- - `<Leader>fj` / `<Leader>fJ` - find/grep notes (see "Find" section)
+nmap_leader('jj', '<Cmd>lua open_daily_note()<CR>', 'Daily note')
 
 -- l is for 'Language'. Common usage:
 -- - `<Leader>ld` - show more diagnostic details in a floating window
@@ -220,6 +239,14 @@ nmap_leader('mt', '<Cmd>lua MiniMap.toggle()<CR>',       'Toggle')
 nmap_leader('or', '<Cmd>lua MiniMisc.resize_window()<CR>', 'Resize to default width')
 nmap_leader('ot', '<Cmd>lua MiniTrailspace.trim()<CR>',    'Trim trailspace')
 nmap_leader('oz', '<Cmd>lua MiniMisc.zoom()<CR>',          'Zoom toggle')
+
+-- r is for 'Run' (tasks). Common usage:
+-- - `<Leader>rr` - run a task (shows picker with Makefile/mise tasks)
+-- - `<Leader>rt` - toggle task list to see running/completed tasks
+-- - `<Leader>ra` - action on a task (restart, dispose, open output, etc.)
+nmap_leader('rr', '<Cmd>OverseerRun<CR>',         'Run task')
+nmap_leader('rt', '<Cmd>OverseerToggle<CR>',      'Toggle task list')
+nmap_leader('ra', '<Cmd>OverseerTaskAction<CR>',  'Task action')
 
 -- s is for 'Session'. Common usage:
 -- - `<Leader>sn` - start new session
