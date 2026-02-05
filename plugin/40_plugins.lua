@@ -535,38 +535,10 @@ later(function()
   })
 
   require("neogit").setup({
-    -- Use replace mode: takes over current window for focused Git workflow
-    kind = "replace",
-
     -- Quality-of-life improvements
-    disable_hint = true,                  -- Remove hint text in status buffer
-    disable_commit_confirmation = "auto", -- Skip confirmation for simple commits
-    disable_insert_on_commit = false,     -- Start in insert mode for commit messages
-
-    -- Commit editor settings
-    commit_editor = {
-      kind = "replace",        -- Consistent window behavior
-      show_staged_diff = true, -- Show diff below commit message
-    },
-
-    -- Popup behavior
-    commit_popup = {
-      kind = "replace",
-    },
-
-    -- Status buffer sections configuration
-    sections = {
-      untracked = { folded = false },
-      unstaged = { folded = false },
-      staged = { folded = false },
-      stashes = { folded = true },
-      unpulled_upstream = { folded = true },
-      unmerged_upstream = { folded = false },
-      unpulled_pushRemote = { folded = true },
-      unmerged_pushRemote = { folded = false },
-      recent = { folded = true },
-      rebase = { folded = true },
-    },
+    disable_hint = true, -- Remove hint text in status buffer
+    disable_commit_confirmation = "auto",
+    disable_insert_on_commit = true,
   })
 end)
 
