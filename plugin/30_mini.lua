@@ -177,9 +177,45 @@ now_if_args(function()
   -- Don't show 'Text' suggestions (usually noisy) and show snippets last.
   local process_items_opts = { kind_priority = { Text = -1, Snippet = 99 } }
   local process_items = function(items, base)
-    return MiniCompletion.default_process_items(items, base, process_items_opts)
+    local processed = MiniCompletion.default_process_items(items, base, process_items_opts)
+
+    -- On Neovim < 0.12, truncate long completion items since pummaxwidth is not available
+    if vim.fn.has('nvim-0.12') == 0 then
+      local max_abbr_width = 60 -- Maximum width for the main completion text
+      local max_menu_width = 40 -- Maximum width for the LSP kind/menu text
+
+      for _, item in ipairs(processed) do
+        -- Truncate abbr (main completion text)
+        if item.abbr and #item.abbr > max_abbr_width then
+          item.abbr = item.abbr:sub(1, max_abbr_width - 1) .. '…'
+        end
+
+        -- Truncate menu (LSP kind, file path, etc.)
+        if item.menu and #item.menu > max_menu_width then
+          item.menu = item.menu:sub(1, max_menu_width - 1) .. '…'
+        end
+      end
+    end
+
+    return processed
   end
+
+  -- Configure window settings for info and signature windows
+  local window_config = {
+    info = {
+      height = 25,
+      width = 80,
+      border = "rounded"
+    },
+    signature = {
+      height = 25,
+      width = 80,
+      border = "rounded"
+    },
+  }
+
   require("mini.completion").setup({
+    window = window_config,
     lsp_completion = {
       -- Without this config autocompletion is set up through `:h 'completefunc'`.
       -- Although not needed, setting up through `:h 'omnifunc'` is cleaner
@@ -199,6 +235,21 @@ now_if_args(function()
   -- Advertise to servers that Neovim now supports certain set of completion and
   -- signature features through 'mini.completion'.
   vim.lsp.config("*", { capabilities = MiniCompletion.get_lsp_capabilities() })
+
+  -- Configure popup menu appearance (requires Neovim 0.12+)
+  if vim.fn.has('nvim-0.12') == 1 then
+    -- Set maximum width for completion popup menu
+    vim.opt.pumwidth = 15  -- Minimum width
+    vim.opt.pumheight = 15 -- Maximum height
+    -- Note: pummaxwidth is planned for 0.12+ to limit maximum width
+    if vim.fn.exists('+pummaxwidth') == 1 then
+      vim.opt.pummaxwidth = 80 -- Maximum width (when available)
+    end
+    -- Use 'popup' style for more modern appearance (when available)
+    if vim.fn.exists('+completepopup') == 1 then
+      vim.opt.completepopup = 'height:15,width:60,border:on'
+    end
+  end
 end)
 
 -- Miscellaneous small but useful functions. Example usage:
