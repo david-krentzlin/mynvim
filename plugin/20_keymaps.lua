@@ -28,7 +28,7 @@ local function qf_or_loclist_next()
     vim.cmd('silent! lnext')
     return
   end
-  
+
   -- Check if quickfix is open (global fallback)
   local qf_winid = vim.fn.getqflist({ winid = true }).winid
   if qf_winid ~= 0 then
@@ -43,7 +43,7 @@ local function qf_or_loclist_prev()
     vim.cmd('silent! lprevious')
     return
   end
-  
+
   -- Check if quickfix is open (global fallback)
   local qf_winid = vim.fn.getqflist({ winid = true }).winid
   if qf_winid ~= 0 then
@@ -286,7 +286,8 @@ nmap_leader('ra', '<Cmd>OverseerTaskAction<CR>', 'Task action')
 -- - `<Leader>cs` - run full test suite for the project
 -- - `<Leader>cl` - re-run last test command
 -- - `<Leader>cv` - visit/open the test file for current file (toggle between impl/test)
-nmap_leader('cn', '<Cmd>TestNearest<CR>', 'Nearest test')
+
+nmap_leader('cc', '<Cmd>TestNearest<CR>', 'Nearest test')
 nmap_leader('cf', '<Cmd>TestFile<CR>', 'File tests')
 nmap_leader('cs', '<Cmd>TestSuite<CR>', 'Suite')
 nmap_leader('cl', '<Cmd>TestLast<CR>', 'Last test')

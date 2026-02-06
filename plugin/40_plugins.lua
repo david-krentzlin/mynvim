@@ -234,61 +234,61 @@ now(function()
       colors.bg_linenr = colors.bg_main
     end,
     on_highlights = function(hl, colors)
-      hl.CursorLine         = {
+      hl.CursorLine           = {
         bg = colors.bg_main
       }
 
-      hl.CursorLineNr       = {
+      hl.CursorLineNr         = {
         fg = colors.magenta,
         bg = colors.bg_main,
         bold = true
       }
       -- MiniClue window
-      hl.MiniClueBorder     = {
+      hl.MiniClueBorder       = {
         fg = colors.border,
         bg = colors.bg_main,
       }
 
-      hl.MiniClueSeparator  = {
+      hl.MiniClueSeparator    = {
         fg = colors.border,
         bg = colors.bg_main,
       }
 
-      hl.MiniClueTitle      = {
+      hl.MiniClueTitle        = {
         fg = colors.fg_main,
         bg = colors.bg_main,
         bold = true,
       }
 
-      hl.MiniClueDescGroup  = {
+      hl.MiniClueDescGroup    = {
         fg = colors.cyan,
         bg = colors.bg_main,
         bold = true,
       }
 
-      hl.MiniClueDescSingle = {
+      hl.MiniClueDescSingle   = {
         fg = colors.fg_dim,
         bg = colors.bg_main,
       }
 
-      hl.MiniClueNextKey    = {
+      hl.MiniClueNextKey      = {
         fg = colors.yellow,
         bg = colors.bg_main,
         bold = true,
       }
 
-      hl.Pmenu              = { fg = colors.fg_main, bg = colors.bg_main }
-      hl.PmenuSel           = { fg = colors.fg_main, bg = colors.bg_active, bold = true }
-      hl.PmenuSbar          = { bg = colors.bg_main }
-      hl.PmenuThumb         = { bg = colors.border }
-      hl.PmenuKind          = { fg = colors.blue, bg = colors.bg_main }
-      hl.PmenuKindSel       = { fg = colors.blue, bg = colors.bg_active, bold = true }
+      hl.Pmenu                = { fg = colors.fg_main, bg = colors.bg_main }
+      hl.PmenuSel             = { fg = colors.fg_main, bg = colors.bg_active, bold = true }
+      hl.PmenuSbar            = { bg = colors.bg_main }
+      hl.PmenuThumb           = { bg = colors.border }
+      hl.PmenuKind            = { fg = colors.blue, bg = colors.bg_main }
+      hl.PmenuKindSel         = { fg = colors.blue, bg = colors.bg_active, bold = true }
 
-      hl.PmenuExtra         = { fg = colors.fg_dim, bg = colors.bg_main }
-      hl.PmenuExtraSel      = { fg = colors.fg_dim, bg = colors.bg_active }
+      hl.PmenuExtra           = { fg = colors.fg_dim, bg = colors.bg_main }
+      hl.PmenuExtraSel        = { fg = colors.fg_dim, bg = colors.bg_active }
 
-      hl.NormalFloat        = { fg = colors.fg_main, bg = colors.bg_main }
-      hl.FloatBorder        = { fg = colors.border, bg = colors.bg_main }
+      hl.NormalFloat          = { fg = colors.fg_main, bg = colors.bg_main }
+      hl.FloatBorder          = { fg = colors.border, bg = colors.bg_main }
 
       -- MiniPick window
       hl.MiniPickMatchCurrent = {
@@ -297,17 +297,17 @@ now(function()
         bold = true
       }
 
-      hl.MiniPickMatchRanges = {
+      hl.MiniPickMatchRanges  = {
         fg = colors.cyan,
         bold = true
       }
 
-      hl.MiniPickMatchMarked = {
+      hl.MiniPickMatchMarked  = {
         fg = colors.yellow,
         bg = colors.bg_dim
       }
 
-      hl.MiniPickPrompt = {
+      hl.MiniPickPrompt       = {
         fg = colors.magenta,
         bold = true
       }
@@ -546,17 +546,17 @@ end)
 -- vim-test - Run tests at the speed of thought
 -- vim-dispatch - Async test execution with quickfix integration
 later(function()
-  add("tpope/vim-dispatch")  -- Required for vim-test dispatch strategy
+  add("tpope/vim-dispatch") -- Required for vim-test dispatch strategy
   add("vim-test/vim-test")
 
   -- Strategy: Use vim-dispatch to send test output to quickfix list
   -- This runs tests asynchronously and populates the quickfix window
   -- Use :copen to see results, :cn/:cp to navigate errors
   vim.g['test#strategy'] = 'dispatch'
-  
+
   -- Language-specific runners
-  vim.g['test#go#runner'] = 'gotest'       -- Go: use gotest runner
-  vim.g['test#scala#runner'] = 'sbttest'   -- Scala: use sbttest (coexists with nvim-metals)
+  vim.g['test#go#runner'] = 'gotest'     -- Go: use gotest runner
+  vim.g['test#scala#runner'] = 'sbttest' -- Scala: use sbttest (coexists with nvim-metals)
   -- Ruby: Auto-detect between minitest/rspec based on project (no explicit config needed)
 end)
 
