@@ -179,7 +179,9 @@ now_if_args(function()
   local process_items = function(items, base)
     local processed = MiniCompletion.default_process_items(items, base, process_items_opts)
 
-    -- On Neovim < 0.12, truncate long completion items since pummaxwidth is not available
+    -- TODO future.hack: Remove manual truncation once Neovim 0.12+ is the minimum version.
+    -- On Neovim < 0.12, truncate long completion items since pummaxwidth is not available.
+    -- When upgraded to 0.12+, the native pummaxwidth option handles this automatically.
     if vim.fn.has('nvim-0.12') == 0 then
       local max_abbr_width = 60 -- Maximum width for the main completion text
       local max_menu_width = 40 -- Maximum width for the LSP kind/menu text
@@ -236,7 +238,9 @@ now_if_args(function()
   -- signature features through 'mini.completion'.
   vim.lsp.config("*", { capabilities = MiniCompletion.get_lsp_capabilities() })
 
-  -- Configure popup menu appearance (requires Neovim 0.12+)
+  -- TODO future.hack: Remove conditional popup menu configuration once Neovim 0.12+ is the minimum version.
+  -- Configure popup menu appearance (requires Neovim 0.12+).
+  -- These options provide native width/height control that replaces manual truncation above.
   if vim.fn.has('nvim-0.12') == 1 then
     -- Set maximum width for completion popup menu
     vim.opt.pumwidth = 15  -- Minimum width
