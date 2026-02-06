@@ -784,7 +784,67 @@ end)
 --   Execute one either with Lua function, `:Pick <picker-name>` command, or
 --   one of `<Leader>f` mappings defined in 'plugin/20_keymaps.lua'
 later(function()
-  require("mini.pick").setup()
+  local pick = require("mini.pick")
+  
+  pick.setup({
+    mappings = {
+      -- Add custom mapping to send items to quickfix
+      -- Press <C-q> in a picker to send marked items (or current item) to quickfix
+      send_to_qflist = {
+        char = '<C-q>',
+        func = function()
+          local items = pick.get_picker_matches().marked
+          
+          -- If no marked items, use all current matches
+          if vim.tbl_count(items) == 0 then
+            items = pick.get_picker_matches().all or {}
+          end
+          
+          -- Convert to quickfix format
+          local qf_items = {}
+          for _, item in ipairs(items) do
+            local qf_item = {}
+            
+            -- Handle different item formats
+            if type(item) == "table" then
+              -- Item is already structured (common in custom pickers)
+              qf_item.filename = item.path or item.filename or item.bufname
+              qf_item.lnum = item.lnum or item.line or 1
+              qf_item.col = item.col or item.column or 1
+              qf_item.text = item.text or vim.inspect(item)
+            elseif type(item) == "string" then
+              -- Parse string format (common in grep/files pickers)
+              -- Format can be: "filename", "filename:line", "filename:line:col", "filename:line:col:text"
+              local parts = vim.split(item, ":", { plain = true })
+              
+              if #parts >= 1 then
+                qf_item.filename = parts[1]
+                qf_item.lnum = tonumber(parts[2]) or 1
+                qf_item.col = tonumber(parts[3]) or 1
+                qf_item.text = table.concat(vim.list_slice(parts, 4), ":") or item
+              end
+            end
+            
+            if qf_item.filename then
+              table.insert(qf_items, qf_item)
+            end
+          end
+          
+          -- Set quickfix list
+          if #qf_items > 0 then
+            vim.fn.setqflist(qf_items, 'r')
+            vim.cmd('copen')
+            vim.notify(string.format("Sent %d item(s) to quickfix", #qf_items), vim.log.levels.INFO)
+          else
+            vim.notify("No items to send to quickfix", vim.log.levels.WARN)
+          end
+          
+          -- Stop picker
+          pick.stop()
+        end,
+      },
+    },
+  })
 end)
 
 -- Manage and expand snippets (templates for a frequently used text).

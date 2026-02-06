@@ -412,15 +412,9 @@ later(function()
     },
   })
 
-  -- You already have <Leader>eq for quickfix toggle in keymaps,
-  -- but quicker provides enhanced toggle functionality
-  vim.keymap.set("n", "<leader>eq", function()
-    require("quicker").toggle()
-  end, { desc = "Quickfix (Quicker)" })
-
-  vim.keymap.set("n", "<leader>eQ", function()
-    require("quicker").toggle({ loclist = true })
-  end, { desc = "Location list (Quicker)" })
+  -- Keybindings for quickfix/location list toggle are defined in plugin/20_keymaps.lua
+  -- <Leader>eq -> Toggle quickfix
+  -- <Leader>eQ -> Toggle location list
 end)
 
 -- Task runner =====================================================================
@@ -545,6 +539,25 @@ later(function()
       end
     end)
   end
+end)
+
+-- Test runner ==============================================================================
+
+-- vim-test - Run tests at the speed of thought
+-- vim-dispatch - Async test execution with quickfix integration
+later(function()
+  add("tpope/vim-dispatch")  -- Required for vim-test dispatch strategy
+  add("vim-test/vim-test")
+
+  -- Strategy: Use vim-dispatch to send test output to quickfix list
+  -- This runs tests asynchronously and populates the quickfix window
+  -- Use :copen to see results, :cn/:cp to navigate errors
+  vim.g['test#strategy'] = 'dispatch'
+  
+  -- Language-specific runners
+  vim.g['test#go#runner'] = 'gotest'       -- Go: use gotest runner
+  vim.g['test#scala#runner'] = 'sbttest'   -- Scala: use sbttest (coexists with nvim-metals)
+  -- Ruby: Auto-detect between minitest/rspec based on project (no explicit config needed)
 end)
 
 -- Git integration ========================================================================

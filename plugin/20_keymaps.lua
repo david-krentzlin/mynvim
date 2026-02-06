@@ -19,6 +19,41 @@ end
 nmap('[p', '<Cmd>exe "put! " . v:register<CR>', 'Paste Above')
 nmap(']p', '<Cmd>exe "put "  . v:register<CR>', 'Paste Below')
 
+-- Smart quickfix/location list navigation
+-- Auto-detects whether location list or quickfix is open and navigates accordingly
+local function qf_or_loclist_next()
+  -- Check if location list is open for current window (more specific, check first)
+  local loclist_winid = vim.fn.getloclist(0, { winid = true }).winid
+  if loclist_winid ~= 0 then
+    vim.cmd('silent! lnext')
+    return
+  end
+  
+  -- Check if quickfix is open (global fallback)
+  local qf_winid = vim.fn.getqflist({ winid = true }).winid
+  if qf_winid ~= 0 then
+    vim.cmd('silent! cnext')
+  end
+end
+
+local function qf_or_loclist_prev()
+  -- Check if location list is open for current window (more specific, check first)
+  local loclist_winid = vim.fn.getloclist(0, { winid = true }).winid
+  if loclist_winid ~= 0 then
+    vim.cmd('silent! lprevious')
+    return
+  end
+  
+  -- Check if quickfix is open (global fallback)
+  local qf_winid = vim.fn.getqflist({ winid = true }).winid
+  if qf_winid ~= 0 then
+    vim.cmd('silent! cprevious')
+  end
+end
+
+nmap('<A-n>', qf_or_loclist_next, 'Next quickfix/loclist item')
+nmap('<A-p>', qf_or_loclist_prev, 'Previous quickfix/loclist item')
+
 -- Many general mappings are created by 'mini.basics'. See 'plugin/30_mini.lua'
 
 -- stylua: ignore start
@@ -51,6 +86,7 @@ nmap(']p', '<Cmd>exe "put "  . v:register<CR>', 'Paste Below')
 -- Add an entry if you create a new group.
 _G.Config.leader_group_clues = {
   { mode = 'n', keys = '<Leader>b', desc = '+Buffer' },
+  { mode = 'n', keys = '<Leader>c', desc = '+Check' },
   { mode = 'n', keys = '<Leader>d', desc = '+Do' },
   { mode = 'n', keys = '<Leader>e', desc = '+Explore/Edit' },
   { mode = 'n', keys = '<Leader>f', desc = '+Find' },
@@ -122,12 +158,6 @@ local edit_plugin_file = function(filename)
   return string.format('<Cmd>edit %s/plugin/%s<CR>', vim.fn.stdpath('config'), filename)
 end
 local explore_at_file = '<Cmd>lua MiniFiles.open(vim.api.nvim_buf_get_name(0))<CR>'
-local explore_quickfix = function()
-  vim.cmd(vim.fn.getqflist({ winid = true }).winid ~= 0 and 'cclose' or 'copen')
-end
-local explore_locations = function()
-  vim.cmd(vim.fn.getloclist(0, { winid = true }).winid ~= 0 and 'lclose' or 'lopen')
-end
 
 nmap_leader('ed', '<Cmd>lua MiniFiles.open()<CR>', 'Directory')
 nmap_leader('ef', explore_at_file, 'File directory')
@@ -137,8 +167,8 @@ nmap_leader('em', edit_plugin_file('30_mini.lua'), 'MINI config')
 nmap_leader('en', '<Cmd>lua MiniNotify.show_history()<CR>', 'Notifications')
 nmap_leader('eo', edit_plugin_file('10_options.lua'), 'Options config')
 nmap_leader('ep', edit_plugin_file('40_plugins.lua'), 'Plugins config')
-nmap_leader('eq', explore_quickfix, 'Quickfix list')
-nmap_leader('eQ', explore_locations, 'Location list')
+nmap_leader('eq', '<Cmd>lua require("quicker").toggle()<CR>', 'Quickfix list')
+nmap_leader('eQ', '<Cmd>lua require("quicker").toggle({ loclist = true })<CR>', 'Location list')
 
 -- f is for 'Fuzzy Find'. Common usage:
 -- - `<Leader>ff` - find files; for best performance requires `ripgrep`
@@ -249,6 +279,18 @@ nmap_leader('oz', '<Cmd>lua MiniMisc.zoom()<CR>', 'Zoom toggle')
 nmap_leader('rr', '<Cmd>OverseerRun<CR>', 'Run task')
 nmap_leader('rt', '<Cmd>OverseerToggle<CR>', 'Toggle task list')
 nmap_leader('ra', '<Cmd>OverseerTaskAction<CR>', 'Task action')
+
+-- c is for 'Check' (tests). Common usage:
+-- - `<Leader>cn` - run nearest test (test under cursor or nearest to cursor)
+-- - `<Leader>cf` - run all tests in current file
+-- - `<Leader>cs` - run full test suite for the project
+-- - `<Leader>cl` - re-run last test command
+-- - `<Leader>cv` - visit/open the test file for current file (toggle between impl/test)
+nmap_leader('cn', '<Cmd>TestNearest<CR>', 'Nearest test')
+nmap_leader('cf', '<Cmd>TestFile<CR>', 'File tests')
+nmap_leader('cs', '<Cmd>TestSuite<CR>', 'Suite')
+nmap_leader('cl', '<Cmd>TestLast<CR>', 'Last test')
+nmap_leader('cv', '<Cmd>TestVisit<CR>', 'Visit test')
 
 -- s is for 'Session'. Common usage:
 -- - `<Leader>sn` - start new session
