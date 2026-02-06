@@ -681,7 +681,7 @@ end)
 -- Languages ============================================================================
 
 later(function()
-  add("scalameta/nvim-metals")
+  add({ source = "scalameta/nvim-metals", depends = { 'mfussenegger/nvim-dap' } })
 
   -- Configure nvim-metals for Scala files
   local metals_augroup = vim.api.nvim_create_augroup('nvim-metals', { clear = true })
