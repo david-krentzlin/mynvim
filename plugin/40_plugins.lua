@@ -371,8 +371,6 @@ later(function()
       vim.keymap.set("n", "}", "<cmd>AerialNext<CR>", { buffer = bufnr })
     end,
   })
-
-  vim.keymap.set("n", "<leader>fo", "<cmd>AerialToggle<CR>", { desc = "Outline (Aerial)" })
 end)
 
 -- Quicker.nvim - Enhanced quickfix window
