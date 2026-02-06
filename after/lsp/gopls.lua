@@ -10,6 +10,7 @@
 -- See `:h vim.lsp.Config` and `:h vim.lsp.ClientConfig` for all available fields.
 
 return {
+  filetypes = { 'go', 'gomod', 'gowork', 'gotmpl' },
   on_attach = function(client, buf_id)
     -- Use this function to define buffer-local mappings and behavior that depend
     -- on attached client or only makes sense if there is language server attached.
@@ -54,6 +55,9 @@ return {
 
       -- Semantic tokens for better syntax highlighting
       semanticTokens = true,
+
+      -- Enable template file support
+      templateExtensions = { 'tmpl', 'gotmpl', 'gohtml', 'gotxt' },
     },
   },
 }

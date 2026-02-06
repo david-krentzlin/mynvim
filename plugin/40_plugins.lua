@@ -73,6 +73,7 @@ now_if_args(function()
     "html",
     "http",
     "ruby",
+    "embedded_template", -- for ERB files
     "java",
     "cmake",
     "rust",
@@ -134,6 +135,7 @@ end)
 -- Add it now if file (and not 'mini.starter') is shown after startup.
 now_if_args(function()
   add("neovim/nvim-lspconfig")
+  add("b0o/schemastore.nvim") -- JSON schemas for jsonls
 
   -- Use `:h vim.lsp.enable()` to automatically enable language server based on
   -- the rules provided by 'nvim-lspconfig'.
@@ -141,13 +143,16 @@ now_if_args(function()
   -- Uncomment and tweak the following `vim.lsp.enable()` call to enable servers.
   vim.lsp.enable({
     'lua_ls',
-    'herb_ls', -- erb
+    'herb_ls',     -- ERB
     'rubocop',
     'ruby_lsp',
     'golangci_lint_ls',
     'gopls',
     'harper_ls',
-    'marksman'
+    'marksman',
+    'jsonls',
+    'cssls',       -- CSS
+    'yamlls',      -- YAML
   })
 end)
 
@@ -173,7 +178,40 @@ later(function()
     },
     -- Map of filetype to formatters
     -- Make sure that necessary CLI tool is available
-    -- formatters_by_ft = { lua = { "stylua" } },
+    formatters_by_ft = {
+      -- JSON and Markdown handled by their respective LSPs (jsonls, marksman)
+      -- CSS handled by cssls LSP
+      -- Go and gotmpl handled by gopls LSP
+      -- ERB: erb_format as primary, herb_ls LSP as fallback
+      typescript = { "dprint" },
+      javascript = { "dprint" },
+      typescriptreact = { "dprint" },
+      javascriptreact = { "dprint" },
+      toml = { "dprint" },
+      dockerfile = { "dprint" },
+      yaml = { "yamlfmt" },  -- Use yamlfmt as primary, yamlls LSP as fallback
+      eruby = { "erb_format" },  -- ERB files: erb_format as primary, herb_ls LSP as fallback
+    },
+    formatters = {
+      dprint = {
+        command = "dprint",
+        args = function(self, ctx)
+          return {
+            "fmt",
+            "--stdin",
+            ctx.filename,
+            "--config",
+            vim.fn.stdpath('config') .. '/dprint.json',
+          }
+        end,
+        stdin = true,
+      },
+      erb_format = {
+        command = "erb-format",
+        args = { "--stdin" },
+        stdin = true,
+      },
+    },
   })
 
   vim.api.nvim_create_autocmd("BufWritePre", {
